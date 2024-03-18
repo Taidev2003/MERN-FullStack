@@ -1,6 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
+const cors = require("cors");
 const User = require("./Models/UserModel");
 const routes = require("./Routes/index");
 const bodyParser = require("body-parser");
@@ -9,6 +10,8 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3001;
 app.use(express.json());
+
+app.use(cors());
 app.use(bodyParser.json());
 routes(app);
 

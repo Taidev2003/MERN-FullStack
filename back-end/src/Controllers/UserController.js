@@ -1,4 +1,5 @@
 const UserService = require("../Services/UserService");
+const JWTService = require("../Services/JwtService");
 
 const CreateUser = async (req, res) => {
   try {
@@ -130,6 +131,25 @@ const getDetails = async (req, res) => {
     return res.status(404).json({ massage: error });
   }
 };
+//refresh token
+
+const refreshToken = async (req, res) => {
+  try {
+    const token = req.headers.token.split(" ")[1];
+
+    if (!token) {
+      return res.status(200).json({
+        status: "error",
+        message: "The user is not requried",
+      });
+    }
+    const respone = await JWTService.refreshTokenService(token);
+
+    return res.status(200).json(respone);
+  } catch (error) {
+    return res.status(404).json({ massage: error });
+  }
+};
 module.exports = {
   CreateUser,
   loginUser,
@@ -137,4 +157,5 @@ module.exports = {
   deleteUser,
   getAllUsers,
   getDetails,
+  refreshToken,
 };

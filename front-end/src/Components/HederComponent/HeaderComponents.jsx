@@ -1,4 +1,10 @@
+import { useNavigate } from "react-router-dom";
+
 const Header = () => {
+  const navigate = useNavigate();
+  const handleNavigate = (path) => {
+    navigate(path);
+  };
   return (
     <section>
       <div className="navbar bg-[#f2f5f7] mx-auto">
@@ -10,19 +16,19 @@ const Header = () => {
         <div className="navbar-center hidden lg:flex">
           <ul className="menu menu-horizontal px-1">
             <li>
-              <a href="*">Home</a>
+              <p onClick={() => handleNavigate("/")}>Home</p>
             </li>
             <li>
-              <a href="*">Books</a>
+              <p onClick={() => handleNavigate("/product")}>Books</p>
             </li>
             <li>
-              <a href="*">About Author</a>
+              <p onClick={() => handleNavigate("/blog")}>Blog</p>
             </li>
             <li>
-              <a href="*">Blog</a>
+              <p onClick={() => handleNavigate("/contact")}>Contact</p>
             </li>
             <li>
-              <a href="*">Contact</a>
+              <p onClick={() => handleNavigate("/login")}>Sign-In</p>
             </li>
           </ul>
         </div>
@@ -80,19 +86,19 @@ const Header = () => {
               className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
             >
               <li>
-                <a href="*">Home</a>
+                <p onClick={() => handleNavigate("/")}>Home</p>
               </li>
               <li>
-                <a href="*">Books</a>
+                <p onClick={() => handleNavigate("/product")}>Books</p>
               </li>
               <li>
-                <a href="*">About Author</a>
+                <p onClick={() => handleNavigate("/blog")}>Blog</p>
               </li>
               <li>
-                <a href="*">Blog</a>
+                <p onClick={() => handleNavigate("/contact")}>Contact</p>
               </li>
               <li>
-                <a href="*">Contact</a>
+                <p onClick={() => handleNavigate("/login")}>Sign-In</p>
               </li>
             </ul>
           </div>

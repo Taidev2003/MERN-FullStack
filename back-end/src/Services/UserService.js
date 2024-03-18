@@ -152,6 +152,7 @@ const getDetails = (id) => {
     }
   });
 };
+
 module.exports = {
   CreateUser,
   loginUser,

@@ -1,52 +1,130 @@
+import { useState } from "react";
+
 const SignUp = () => {
+  const [isShowPassword, setIsShowPassword] = useState(false);
+  const [isShowConfirmPassword, setisShowConfirmPassword] = useState(false);
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmpassword, setConfirmpassword] = useState("");
+
+  const handleOnChange = (e) => {
+    const { name, value } = e.target;
+
+    switch (name) {
+      case "email":
+        setEmail(value);
+        break;
+      case "password":
+        setPassword(value);
+        break;
+      case "confirmpassword":
+        setConfirmpassword(value);
+        break;
+      default:
+        break;
+    }
+  };
+
+  const hanldeSignUp = (e) => {
+    e.preventDefault();
+    console.log("sign up", email, password, confirmpassword);
+  };
+
   return (
     <section className="flex items-center justify-center h-screen bg-[#f2f5f7]">
       <div className="w-full max-w-md p-8 space-y-3 rounded-xl   bg-white   text-slate-900">
         <h1 className="text-2xl font-bold text-center">Sign Up</h1>
         <form novalidate="" action="" className="space-y-6">
           <div className="space-y-1 text-sm">
-            <label for="username" className="block   text-slate-900">
-              Username
+            <label for="email" className="block   text-slate-900">
+              Email
             </label>
             <input
+              onChange={handleOnChange}
+              value={email}
               type="text"
-              name="username"
-              id="username"
-              placeholder="Username"
+              name="email"
+              id="email"
+              placeholder="email or phone number"
               className="w-full px-4 py-3 rounded-md   border-gray-700    text-slate-900 focus:border-violet-400"
             />
           </div>
           <div className="space-y-1 text-sm">
-            <label for="username" className="block   text-slate-900">
-              Password
-            </label>
-            <input
-              type="text"
-              name="username"
-              id="username"
-              placeholder="Password"
-              className="w-full px-4 py-3 rounded-md   border-gray-700    text-slate-900 focus:border-violet-400"
-            />
+            <label className="block   text-slate-900">Password</label>
+            <div className="flex flex-row justify-center items-center relative">
+              <input
+                onChange={handleOnChange}
+                value={password}
+                type={isShowPassword ? "text" : "password"}
+                name="password"
+                id="password"
+                placeholder="Password"
+                className="w-full px-4 py-3 rounded-md   border-gray-700    text-slate-900 focus:border-violet-400"
+              />
+              <svg
+                onClick={() => setIsShowPassword(!isShowPassword)}
+                xmlns="http://www.w3.org/2000/svg"
+                width={24}
+                height={24}
+                viewBox="0 0 24 24"
+                className="absolute left-[350px] hover:cursor-pointer"
+              >
+                <path
+                  fill="#7a6dd3"
+                  d="M12 5c-7.633 0-9.927 6.617-9.948 6.684L1.946 12l.105.316C2.073 12.383 4.367 19 12 19s9.927-6.617 9.948-6.684l.106-.316l-.105-.316C21.927 11.617 19.633 5 12 5m0 11c-2.206 0-4-1.794-4-4s1.794-4 4-4s4 1.794 4 4s-1.794 4-4 4"
+                ></path>
+                <path
+                  fill="#7a6dd3"
+                  d="M12 10c-1.084 0-2 .916-2 2s.916 2 2 2s2-.916 2-2s-.916-2-2-2"
+                ></path>
+              </svg>
+            </div>
           </div>
           <div className="space-y-1 text-sm">
-            <label for="password" className="block  text-slate-900">
-              Password Confirm
-            </label>
-            <input
-              type="password"
-              name="password"
-              id="password"
-              placeholder=" Password Confirm    "
-              className="w-full px-4 py-3 rounded-md   border-gray-700    text-slate-900 focus:border-violet-400"
-            />
+            <label className="block  text-slate-900">Password Confirm</label>
+            <div className="flex flex-row justify-center items-center relative">
+              <input
+                onChange={handleOnChange}
+                value={confirmpassword}
+                type={isShowConfirmPassword ? "text" : "password"}
+                name="confirmpassword"
+                id="confirmpassword"
+                placeholder="Confirmpassword"
+                className="w-full px-4 py-3 rounded-md border-gray-700  text-slate-900 focus:border-violet-400"
+              />
+              <svg
+                onClick={() => setisShowConfirmPassword(!isShowConfirmPassword)}
+                xmlns="http://www.w3.org/2000/svg"
+                width={24}
+                height={24}
+                viewBox="0 0 24 24"
+                className="absolute left-[350px] hover:cursor-pointer"
+              >
+                <path
+                  fill="#7a6dd3"
+                  d="M12 5c-7.633 0-9.927 6.617-9.948 6.684L1.946 12l.105.316C2.073 12.383 4.367 19 12 19s9.927-6.617 9.948-6.684l.106-.316l-.105-.316C21.927 11.617 19.633 5 12 5m0 11c-2.206 0-4-1.794-4-4s1.794-4 4-4s4 1.794 4 4s-1.794 4-4 4"
+                ></path>
+                <path
+                  fill="#7a6dd3"
+                  d="M12 10c-1.084 0-2 .916-2 2s.916 2 2 2s2-.916 2-2s-.916-2-2-2"
+                ></path>
+              </svg>
+            </div>
             <div className="flex justify-end text-xs  text-slate-900">
               <a rel="noopener noreferrer" href="*">
                 Forgot Password?
               </a>
             </div>
           </div>
-          <button className="block w-full p-3 text-center rounded-sm   text-gray-900   bg-violet-400">
-            Sign in
+          <button
+            disabled={
+              !email.length || !password.length || !confirmpassword.length
+            }
+            onClick={hanldeSignUp}
+            className="block w-full p-3 text-center rounded-sm   text-gray-900   bg-violet-400 disabled:bg-slate-100 disabled:text-black"
+          >
+            Sign Up
           </button>
         </form>
         <div className="flex items-center pt-4 space-x-1">
