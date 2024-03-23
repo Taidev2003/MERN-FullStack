@@ -1,9 +1,19 @@
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import * as UserService from "../../services/UserService";
+import { resetUser } from "../../redux/Slice/UserSlice";
 
 const Header = () => {
+  const user = useSelector((state) => state.user);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleNavigate = (path) => {
     navigate(path);
+  };
+  console.log(user);
+  const handleLogOut = async () => {
+    await UserService.logoutUser();
+    dispatch(resetUser());
   };
   return (
     <section>
@@ -13,8 +23,8 @@ const Header = () => {
             TaiTheDev
           </a>
         </div>
-        <div className="navbar-center hidden lg:flex">
-          <ul className="menu menu-horizontal px-1">
+        <div className="navbar-center hidden lg:flex  ">
+          <ul className="menu menu-horizontal rounded-box px-1  flex flex-row justify-center items-center  ">
             <li>
               <p onClick={() => handleNavigate("/")}>Home</p>
             </li>
@@ -28,7 +38,35 @@ const Header = () => {
               <p onClick={() => handleNavigate("/contact")}>Contact</p>
             </li>
             <li>
-              <p onClick={() => handleNavigate("/login")}>Sign-In</p>
+              {user?.name ? (
+                <div className=" px-4 menu lg:menu-horizontal rounded-box ">
+                  <li>
+                    <div className="avatar">
+                      <div className="w-6 rounded-full">
+                        <img
+                          src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg "
+                          alt="..."
+                        />
+                      </div>
+                    </div>
+                  </li>
+                  <li>
+                    <details close>
+                      <summary> {user.name}</summary>
+                      <ul>
+                        <li>
+                          <p onClick={handleLogOut}>Log-Out</p>
+                        </li>
+                        <li>
+                          <p>Profiles</p>
+                        </li>
+                      </ul>
+                    </details>
+                  </li>
+                </div>
+              ) : (
+                <p onClick={() => handleNavigate("/login")}>Sign-In</p>
+              )}
             </li>
           </ul>
         </div>
@@ -83,7 +121,7 @@ const Header = () => {
             </div>
             <ul
               tabIndex={0}
-              className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
+              className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52 space-y-2"
             >
               <li>
                 <p onClick={() => handleNavigate("/")}>Home</p>
@@ -98,7 +136,25 @@ const Header = () => {
                 <p onClick={() => handleNavigate("/contact")}>Contact</p>
               </li>
               <li>
-                <p onClick={() => handleNavigate("/login")}>Sign-In</p>
+                {user?.name ? (
+                  <div className="w-48 menu menu-horizontal  rounded-box flex flex-row  ">
+                    <li>
+                      <details close>
+                        <summary> {user.name}</summary>
+                        <ul>
+                          <li>
+                            <p>Log-Out</p>
+                          </li>
+                          <li>
+                            <p>Profiles</p>
+                          </li>
+                        </ul>
+                      </details>
+                    </li>
+                  </div>
+                ) : (
+                  <p onClick={() => handleNavigate("/login")}>Sign-In</p>
+                )}
               </li>
             </ul>
           </div>

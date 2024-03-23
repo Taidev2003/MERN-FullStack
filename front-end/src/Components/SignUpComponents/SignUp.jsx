@@ -1,4 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import * as UserService from "../../services/UserService";
+import { useMutationHooks } from "../../hooks/useMutationHook";
+import { SuccessMessage, ErrorMessage } from "../message/Message";
+import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
   const [isShowPassword, setIsShowPassword] = useState(false);
@@ -7,6 +11,25 @@ const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmpassword, setConfirmpassword] = useState("");
+  const navigate = useNavigate();
+
+  const mutation = useMutationHooks((data) => UserService.signupUser(data));
+  const { data } = mutation;
+  console.log(mutation);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [showErrorMessage, setShowErrorMessage] = useState(false);
+
+  useEffect(() => {
+    if (data && data.status === "Success") {
+      setShowSuccessMessage(true);
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
+    } else if (data && data.status === "ERROR") {
+      setShowErrorMessage(true);
+    }
+  }, [data]);
+  console.log(data?.status);
 
   const handleOnChange = (e) => {
     const { name, value } = e.target;
@@ -27,6 +50,7 @@ const SignUp = () => {
   };
 
   const hanldeSignUp = (e) => {
+    mutation.mutate({ email, password, confirmpassword });
     e.preventDefault();
     console.log("sign up", email, password, confirmpassword);
   };
@@ -36,6 +60,13 @@ const SignUp = () => {
       <div className="w-full max-w-md p-8 space-y-3 rounded-xl   bg-white   text-slate-900">
         <h1 className="text-2xl font-bold text-center">Sign Up</h1>
         <form novalidate="" action="" className="space-y-6">
+          {data && data.status === "Success" && (
+            <SuccessMessage message="Sign up successful!" />
+          )}
+          {/* Error message */}
+          {data && data.status === "ERROR" && (
+            <ErrorMessage message="Sign up failed! Please try again." />
+          )}
           <div className="space-y-1 text-sm">
             <label for="email" className="block   text-slate-900">
               Email
@@ -47,7 +78,7 @@ const SignUp = () => {
               name="email"
               id="email"
               placeholder="email or phone number"
-              className="w-full px-4 py-3 rounded-md   border-gray-700    text-slate-900 focus:border-violet-400"
+              className="w-full px-4 py-3 border rounded-md border-gray-700    text-slate-900 focus:border-violet-400"
             />
           </div>
           <div className="space-y-1 text-sm">
@@ -60,7 +91,7 @@ const SignUp = () => {
                 name="password"
                 id="password"
                 placeholder="Password"
-                className="w-full px-4 py-3 rounded-md   border-gray-700    text-slate-900 focus:border-violet-400"
+                className="w-full px-4 py-3 border rounded-md   border-gray-700    text-slate-900 focus:border-violet-400"
               />
               <svg
                 onClick={() => setIsShowPassword(!isShowPassword)}
@@ -91,7 +122,7 @@ const SignUp = () => {
                 name="confirmpassword"
                 id="confirmpassword"
                 placeholder="Confirmpassword"
-                className="w-full px-4 py-3 rounded-md border-gray-700  text-slate-900 focus:border-violet-400"
+                className="w-full px-4 py-3 border rounded-md border-gray-700  text-slate-900 focus:border-violet-400"
               />
               <svg
                 onClick={() => setisShowConfirmPassword(!isShowConfirmPassword)}
@@ -117,6 +148,9 @@ const SignUp = () => {
               </a>
             </div>
           </div>
+          {data?.status === "ERROR" && (
+            <span className="text-red-600">{data?.message}</span>
+          )}
           <button
             disabled={
               !email.length || !password.length || !confirmpassword.length

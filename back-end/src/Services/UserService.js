@@ -4,23 +4,22 @@ const { genneralAccessToken, genneralfreshToken } = require("./JwtService");
 
 const CreateUser = (newUser) => {
   return new Promise(async (resolve, reject) => {
-    const { name, email, password, confirmPassword, phone } = newUser;
+    const { name, email, password, confirmpassword, phone } = newUser;
     try {
       const checkUser = await User.findOne({ email: email });
       if (checkUser !== null) {
-        resolve({ status: "success", message: "The is mail is really" });
+        resolve({ status: "ERROR", message: "The is mail is really" });
       }
       const hash = bcrypt.hashSync(password, 10);
       const CreateUser = await User.create({
         name,
         email,
         password: hash,
-
         phone,
       });
       if (CreateUser) {
         resolve({
-          status: "OK",
+          status: "Success",
           massage: "Successfully created",
           data: CreateUser,
         });
@@ -34,18 +33,18 @@ const CreateUser = (newUser) => {
 //loginUser
 const loginUser = (userLogin) => {
   return new Promise(async (resolve, reject) => {
-    const { name, email, password, confirmPassword, phone } = userLogin;
+    const { email, password } = userLogin;
     try {
       const checkUser = await User.findOne({ email: email });
       if (checkUser === null) {
-        resolve({ status: "success", message: "The user is not defind" });
+        resolve({ status: "ERROR", message: "The user is not defind" });
       }
 
       const comparePassword = bcrypt.compareSync(password, checkUser.password);
 
       if (!comparePassword) {
         resolve({
-          status: "OK",
+          status: "ERROR",
           massage: "The Password or user is incorrect",
           data: CreateUser,
         });
@@ -60,7 +59,7 @@ const loginUser = (userLogin) => {
         isAdmin: checkUser.isAdmin,
       });
       resolve({
-        status: "OK",
+        status: "Success",
         massage: "Successfully created",
         access_token,
         refresh_token,
@@ -76,15 +75,14 @@ const updateUser = (id, data) => {
   return new Promise(async (resolve, reject) => {
     try {
       const checkUser = await User.findOne({ _id: id });
-      console.log(checkUser);
 
       if (checkUser === null) {
-        resolve({ status: "ok", massage: "The user is not defined" });
+        resolve({ status: "ERROR", massage: "The user is not defined" });
       }
       const updateUser = await User.findByIdAndUpdate(id, data, { new: true });
-      console.log(updateUser);
+
       resolve({
-        status: "OK",
+        status: "Success",
         massage: "Successfully created",
         data: updateUser,
       });
@@ -99,14 +97,13 @@ const deleteUser = (id, data) => {
   return new Promise(async (resolve, reject) => {
     try {
       const checkUser = await User.findOne({ _id: id });
-      console.log(checkUser);
 
       if (checkUser === null) {
-        resolve({ status: "ok", massage: "The user is not defined" });
+        resolve({ status: "ERROR", massage: "The user is not defined" });
       }
       await User.findByIdAndDelete(id);
       resolve({
-        status: "OK",
+        status: "Success",
         massage: "Delete user successfully",
       });
     } catch (error) {
@@ -122,7 +119,7 @@ const getAllUsers = (id, data) => {
 
       const allUsers = await User.find();
       resolve({
-        status: "OK",
+        status: "Success",
         massage: "Get All User successfully",
         data: allUsers,
       });
@@ -139,11 +136,11 @@ const getDetails = (id) => {
       const user = await User.findOne({ _id: id });
 
       if (user === null) {
-        resolve({ status: "ok", massage: "The user is not defined" });
+        resolve({ status: "ERROR", massage: "The user is not defined" });
       }
 
       resolve({
-        status: "OK",
+        status: "Success",
         massage: "successfully",
         data: user,
       });

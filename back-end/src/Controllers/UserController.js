@@ -3,21 +3,21 @@ const JWTService = require("../Services/JwtService");
 
 const CreateUser = async (req, res) => {
   try {
-    const { name, email, password, confirmPassword, phone } = req.body;
+    const { email, password, confirmpassword } = req.body;
 
     const rexge = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
 
     const isCheckEmail = rexge.test(email);
 
-    if (!name || !email || !password || !confirmPassword || !phone) {
+    if (!email || !password || !confirmpassword) {
       return res
         .status(200)
-        .json({ status: "ERROR", message: "All fields are required" });
+        .json({ status: "ERROR", message: "The input required" });
     } else if (!isCheckEmail) {
       return res
         .status(200)
         .json({ status: "ERROR", message: "Invalid email format" });
-    } else if (password !== confirmPassword) {
+    } else if (password !== confirmpassword) {
       return res.status(200).json({
         status: "ERROR",
         message: "Password and ConfirmPassword must match",
@@ -35,13 +35,13 @@ const CreateUser = async (req, res) => {
 //loginuser
 const loginUser = async (req, res) => {
   try {
-    const { name, email, password, confirmPassword, phone } = req.body;
+    const { email, password } = req.body;
 
     const rexge = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
 
     const isCheckEmail = rexge.test(email);
 
-    if (!name || !email || !password || !confirmPassword || !phone) {
+    if (!email || !password) {
       return res
         .status(200)
         .json({ status: "ERROR", message: "All fields are required" });
@@ -49,16 +49,16 @@ const loginUser = async (req, res) => {
       return res
         .status(200)
         .json({ status: "ERROR", message: "Invalid email format" });
-    } else if (password !== confirmPassword) {
-      return res.status(200).json({
-        status: "ERROR",
-        message: "Password and ConfirmPassword must match",
-      });
     }
 
     const respone = await UserService.loginUser(req.body);
-
-    return res.status(200).json(respone);
+    const { refresh_token, ...newReponse } = respone;
+    res.cookie("refresh_token", refresh_token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "strict",
+    });
+    return res.status(200).json(newReponse);
   } catch (error) {
     return res.status(404).json({ massage: error });
   }
@@ -70,7 +70,7 @@ const updateUser = async (req, res) => {
     const data = req.body;
     if (!userID) {
       return res.status(200).json({
-        status: "error",
+        status: "ERROR",
         message: "The user is not requried",
       });
     }
@@ -87,11 +87,10 @@ const deleteUser = async (req, res) => {
   try {
     const userID = req.params.id;
     const token = req.headers;
-    console.log(token);
-    console.log(userID);
+
     if (!userID) {
       return res.status(200).json({
-        status: "error",
+        status: "ERROR",
         message: "The user is not requried",
       });
     }
@@ -120,7 +119,7 @@ const getDetails = async (req, res) => {
 
     if (!userID) {
       return res.status(200).json({
-        status: "error",
+        status: "ERROR",
         message: "The user is not requried",
       });
     }
@@ -134,18 +133,32 @@ const getDetails = async (req, res) => {
 //refresh token
 
 const refreshToken = async (req, res) => {
+  console.log("req.cookies.refresh_token", req.cookies.refresh_token);
   try {
-    const token = req.headers.token.split(" ")[1];
+    const token = req.cookies.refresh_token;
 
     if (!token) {
       return res.status(200).json({
-        status: "error",
+        status: "ERROR",
         message: "The user is not requried",
       });
     }
     const respone = await JWTService.refreshTokenService(token);
 
     return res.status(200).json(respone);
+  } catch (error) {
+    return res.status(404).json({ massage: error });
+  }
+};
+
+//logout User
+const logoutUser = async (req, res) => {
+  try {
+    res.clearCookie("refresh_token");
+    return res.status(200).json({
+      status: "success",
+      message: "User logged out successfully",
+    });
   } catch (error) {
     return res.status(404).json({ massage: error });
   }
@@ -158,4 +171,5 @@ module.exports = {
   getAllUsers,
   getDetails,
   refreshToken,
+  logoutUser,
 };

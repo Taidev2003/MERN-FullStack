@@ -1,24 +1,53 @@
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import axios from "axios";
+
 import routes from "./Routes/index.js";
-import { useQuery } from "@tanstack/react-query";
+import * as UserService from "./services/UserService.js";
 import DefaultPage from "./Components/DefaultComponents/DefaultComponents.jsx";
-import { Fragment } from "react";
+import { Fragment, useEffect } from "react";
+import { isJsonString } from "./utils.js";
+import { jwtDecode } from "jwt-decode";
+import { useDispatch } from "react-redux";
+import { UpdateUser } from "./redux/Slice/UserSlice.js";
 
 function App() {
-  // useEffect(() => {
-  //   fetchAPI();
-  // }, []);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    const { storageData, decoded } = handleDecode();
+    if (decoded?.id) {
+      handleGetDetailsUser(decoded?.id, storageData);
+    }
+  }, []);
 
-  // const fetchAPI = async () => {
-  //   const res = await axios.get(
-  //     `${process.env.REACT_APP_API_URL}/product/get-all`
-  //   );
-  //   return res.data;
-  // };
-  // const query = useQuery({ queryKey: ["todos"], queryFn: fetchAPI });
-  // console.log(query);
+  const handleDecode = () => {
+    let storageData = localStorage.getItem("access_token");
+    let decoded = {};
+    if (storageData && isJsonString(storageData)) {
+      storageData = JSON.parse(storageData);
+      decoded = jwtDecode(storageData);
+    }
+    return { decoded, storageData };
+  };
+
+  UserService.axiosJWT.interceptors.request.use(
+    async (config) => {
+      const currentTime = new Date();
+      const { decoded } = handleDecode();
+      if (decoded?.exp < currentTime.getTime() / 1000) {
+        const data = await UserService.refreshToken();
+        config.headers["token"] = `Bearer ${data?.access_token}`;
+      }
+      return config;
+    },
+    (error) => {
+      return new Promise.reject(error);
+    }
+  );
+
+  const handleGetDetailsUser = async (id, token) => {
+    const res = await UserService.getDetailsUser(id, token);
+    dispatch(UpdateUser({ ...res?.data, access_token: token }));
+  };
   return (
     <div>
       <Router>
@@ -45,3 +74,4 @@ function App() {
 }
 
 export default App;
+ 

@@ -1,10 +1,51 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { SuccessMessage, ErrorMessage } from "../message/Message";
+import * as UserService from "../../services/UserService";
+import { useMutationHooks } from "../../hooks/useMutationHook";
+import { jwtDecode } from "jwt-decode";
+import { useDispatch } from "react-redux";
+import { UpdateUser } from "../../redux/Slice/UserSlice";
 
 const Login = () => {
   const [isShowPassword, setIsShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const dispatch = useDispatch();
+
+  const mutation = useMutationHooks((data) => UserService.loginUser(data));
+  console.log(mutation);
+  const { data } = mutation;
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [showErrorMessage, setShowErrorMessage] = useState(false);
+
+  useEffect(() => {
+    if (data && data.status === "Success") {
+      setShowSuccessMessage(true);
+      setTimeout(() => {
+        navigate("/");
+        localStorage.setItem(
+          "access_token",
+          JSON.stringify(data?.access_token)
+        );
+        if (data?.access_token) {
+          const decode = jwtDecode(data?.access_token);
+          console.log(decode);
+          if (decode?.id) {
+            handlegetDetailsUser(decode?.id, data?.access_token);
+          }
+        }
+      }, 2000);
+    } else if (data && data.status === "ERROR") {
+      setShowErrorMessage(true);
+    }
+  }, [data]);
+  const handlegetDetailsUser = async (id, token) => {
+    const res = await UserService.getDetailsUser(id, token);
+    dispatch(UpdateUser({ ...res?.data, access_token: token }));
+  };
+
   const navigate = useNavigate();
   const hanldeNavigate = () => {
     navigate("/sign-up");
@@ -24,6 +65,10 @@ const Login = () => {
     }
   };
   const hanldeSignIN = (e) => {
+    mutation.mutate({
+      email,
+      password,
+    });
     e.preventDefault();
   };
   return (
@@ -35,8 +80,15 @@ const Login = () => {
             Sign in to access your account
           </p>
         </div>
-        <form novalidate="" action="" className="space-y-8">
-          <div className="space-y-4">
+        <form novalidate="" action="" className="space-y-6">
+          {data && data.status === "Success" && (
+            <SuccessMessage message="Login successful!" />
+          )}
+          {/* Error message */}
+          {data && data.status === "ERROR" && (
+            <ErrorMessage message="Login failed! Please try again." />
+          )}
+          <div className="space-y-2">
             <div>
               <label for="email" className="block mb-2 text-sm">
                 Email address
@@ -66,7 +118,7 @@ const Login = () => {
                   name="password"
                   id="password"
                   placeholder="****"
-                  className="w-full px-4 py-3 rounded-md   border-gray-700    text-slate-900 focus:border-violet-400"
+                  className="w-full px-4 py-3 border rounded-md   border-gray-700    text-slate-900 focus:border-violet-400"
                 />
                 <svg
                   onClick={() => setIsShowPassword(!isShowPassword)}
@@ -95,16 +147,21 @@ const Login = () => {
             </div>
           </div>
           <div className="space-y-2">
+            {data?.status === "ERROR" && (
+              <span className="text-red-600 ">{data?.message}</span>
+            )}
+
             <div>
               <button
                 disabled={!email || !password}
                 onClick={hanldeSignIN}
                 type="button"
-                className="w-full px-8 py-3 font-semibold rounded-md  bg-violet-400  text-gray-900 disabled:bg-slate-100 disabled:text-black"
+                className="w-full my-2 px-8 py-3 font-semibold rounded-md  bg-violet-400  text-gray-900 disabled:bg-slate-100 disabled:text-black"
               >
                 Sign in
               </button>
             </div>
+
             <p className="px-6 text-sm text-center  text-gray-400">
               Don't have an account yet?
               <div
